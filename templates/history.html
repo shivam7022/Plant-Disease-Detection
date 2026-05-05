@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Detection History — LeafCare AI</title>
+  <meta name="description" content="Browse all past plant disease detection analyses stored in our database."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="{{ url_for('main.index') }}" class="nav-logo">
+        <span class="logo-icon">🌿</span>
+        <span class="logo-text">LeafCare <span class="logo-accent">AI</span></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="{{ url_for('main.index') }}"   class="nav-link">Home</a></li>
+        <li><a href="{{ url_for('main.upload') }}"  class="nav-link">Detect Disease</a></li>
+        <li><a href="{{ url_for('main.history') }}" class="nav-link active">History</a></li>
+        <li><a href="{{ url_for('main.about') }}"   class="nav-link">About</a></li>
+      </ul>
+      <a href="{{ url_for('main.upload') }}" class="btn btn-primary nav-cta">Analyze Leaf →</a>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flash-container">
+    {% for category, message in messages %}
+    <div class="flash flash-{{ category }}">{{ message }} <button onclick="this.parentElement.remove()">✕</button></div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
+
+  <main class="page-main">
+    <div class="container">
+      <div class="page-header">
+        <span class="section-tag">Database Records</span>
+        <h1 class="page-title">Detection History</h1>
+        <p class="page-subtitle">Browse all past plant disease analyses stored in the database</p>
+      </div>
+
+      <!-- Filters -->
+      <form class="filter-bar" method="GET" action="{{ url_for('main.history') }}">
+        <div class="filter-group">
+          <label for="plant-filter">🌱 Plant Type</label>
+          <select name="plant" id="plant-filter" onchange="this.form.submit()">
+            <option value="">All Plants</option>
+            {% for plant in plants %}
+            <option value="{{ plant }}" {{ 'selected' if plant_filter == plant }}>{{ plant }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="disease-filter">🔍 Search Disease</label>
+          <input type="text" name="disease" id="disease-filter" placeholder="e.g. Late Blight" value="{{ disease_filter }}"/>
+        </div>
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a href="{{ url_for('main.history') }}" class="btn btn-ghost">Clear</a>
+      </form>
+
+      <!-- Stats row -->
+      <div class="history-stats">
+        <div class="hstat">
+          <span class="hstat-val">{{ predictions.total }}</span>
+          <span class="hstat-label">Total Records</span>
+        </div>
+        <div class="hstat">
+          <span class="hstat-val">{{ predictions.pages }}</span>
+          <span class="hstat-label">Pages</span>
+        </div>
+      </div>
+
+      <!-- Cards Grid -->
+      {% if predictions.items %}
+      <div class="history-grid">
+        {% for p in predictions.items %}
+        <div class="history-card {{ 'hcard-healthy' if p.is_healthy else 'hcard-disease' }}">
+          <div class="hcard-image-wrap">
+            <img src="{{ url_for('static', filename='uploads/' + p.image_filename) }}"
+                 alt="{{ p.disease_name }}" class="hcard-image"
+                 onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22150%22><rect fill=%22%231a2e1a%22 width=%22200%22 height=%22150%22/><text fill=%22%2366bb6a%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.35em%22 font-size=%2240%22>🍃</text></svg>'"/>
+            <div class="hcard-badge {{ 'badge-healthy' if p.is_healthy else 'badge-' + (p.severity or 'medium').lower() }}">
+              {{ '✓' if p.is_healthy else '⚠' }}
+            </div>
+          </div>
+          <div class="hcard-body">
+            <div class="hcard-plant">{{ p.plant_type }}</div>
+            <h4 class="hcard-disease">{{ p.disease_name }}</h4>
+            <div class="hcard-confidence">
+              <div class="hcard-conf-bar" style="width:{{ (p.confidence * 100)|round(0) }}%"></div>
+              <span>{{ (p.confidence * 100)|round(1) }}%</span>
+            </div>
+            <div class="hcard-meta">
+              <span class="severity-tag sev-{{ (p.severity or 'medium').lower() }}">{{ p.severity }}</span>
+              <span class="hcard-date">{{ p.uploaded_at.strftime('%b %d, %Y') }}</span>
+            </div>
+          </div>
+          <div class="hcard-footer">
+            <form method="POST" action="{{ url_for('main.delete_prediction', pred_id=p.id) }}"
+                  onsubmit="return confirm('Delete this record?')">
+              <button type="submit" class="btn-delete">🗑 Delete</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if predictions.pages > 1 %}
+      <div class="pagination">
+        {% if predictions.has_prev %}
+        <a href="{{ url_for('main.history', page=predictions.prev_num, plant=plant_filter, disease=disease_filter) }}" class="page-btn">← Prev</a>
+        {% endif %}
+        {% for page_num in predictions.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+          {% if page_num %}
+          <a href="{{ url_for('main.history', page=page_num, plant=plant_filter, disease=disease_filter) }}"
+             class="page-btn {{ 'page-active' if page_num == predictions.page }}">{{ page_num }}</a>
+          {% else %}
+          <span class="page-ellipsis">…</span>
+          {% endif %}
+        {% endfor %}
+        {% if predictions.has_next %}
+        <a href="{{ url_for('main.history', page=predictions.next_num, plant=plant_filter, disease=disease_filter) }}" class="page-btn">Next →</a>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">🍃</div>
+        <h3>No Records Yet</h3>
+        <p>Start by analyzing your first plant leaf image.</p>
+        <a href="{{ url_for('main.upload') }}" class="btn btn-primary">Upload Leaf Image</a>
+      </div>
+      {% endif %}
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© 2026 LeafCare AI — Plant Disease Detection System</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

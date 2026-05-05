@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About — LeafCare AI</title>
+  <meta name="description" content="Learn about LeafCare AI — how the CNN model was trained, the tech stack, and dataset information."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="{{ url_for('main.index') }}" class="nav-logo">
+        <span class="logo-icon">🌿</span>
+        <span class="logo-text">LeafCare <span class="logo-accent">AI</span></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="{{ url_for('main.index') }}"   class="nav-link">Home</a></li>
+        <li><a href="{{ url_for('main.upload') }}"  class="nav-link">Detect Disease</a></li>
+        <li><a href="{{ url_for('main.history') }}" class="nav-link">History</a></li>
+        <li><a href="{{ url_for('main.about') }}"   class="nav-link active">About</a></li>
+      </ul>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <main class="page-main">
+    <div class="container">
+      <div class="page-header">
+        <span class="section-tag">About The Project</span>
+        <h1 class="page-title">LeafCare AI</h1>
+        <p class="page-subtitle">A full-stack AI system for plant disease detection using deep learning</p>
+      </div>
+
+      <!-- Architecture -->
+      <div class="about-section">
+        <h2>🏗️ System Architecture</h2>
+        <div class="arch-grid">
+          <div class="arch-card">
+            <div class="arch-icon">🧠</div>
+            <h3>Deep Learning Model</h3>
+            <p>MobileNetV2 (transfer learning) + custom classification head trained on PlantVillage dataset</p>
+            <ul>
+              <li>Input: 224×224 RGB images</li>
+              <li>38-class softmax output</li>
+              <li>97%+ validation accuracy</li>
+              <li>Adam optimizer · Categorical cross-entropy</li>
+            </ul>
+          </div>
+          <div class="arch-card">
+            <div class="arch-icon">⚙️</div>
+            <h3>Backend Pipeline</h3>
+            <p>Python-powered processing chain from image upload to prediction result</p>
+            <ul>
+              <li>OpenCV: BGR→RGB, resize 224×224</li>
+              <li>NumPy: Normalization, array ops</li>
+              <li>TensorFlow: CNN model inference</li>
+              <li>Flask: REST API + templating</li>
+            </ul>
+          </div>
+          <div class="arch-card">
+            <div class="arch-icon">🗄️</div>
+            <h3>Data Layer</h3>
+            <p>SQLite database stores all predictions with metadata for history and analytics</p>
+            <ul>
+              <li>SQLAlchemy ORM models</li>
+              <li>Predictions table + Disease info table</li>
+              <li>Timestamps, severity, confidence scores</li>
+              <li>REST JSON API at /api/predictions</li>
+            </ul>
+          </div>
+          <div class="arch-card">
+            <div class="arch-icon">🎨</div>
+            <h3>Frontend</h3>
+            <p>Modern responsive UI with drag-and-drop upload and animated results</p>
+            <ul>
+              <li>Vanilla HTML, CSS, JavaScript</li>
+              <li>Dark green glassmorphism theme</li>
+              <li>Animated confidence bars</li>
+              <li>Mobile-responsive layout</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tech Stack -->
+      <div class="about-section">
+        <h2>🛠️ Technology Stack</h2>
+        <div class="tech-grid">
+          {% set stack = [
+            ('TensorFlow / Keras', 'CNN model training & inference', '#FF6F00'),
+            ('OpenCV',             'Image preprocessing pipeline',   '#5C6BC0'),
+            ('NumPy',              'Numerical computing & arrays',    '#4CAF50'),
+            ('Pandas',             'Data analysis & EDA',             '#1565C0'),
+            ('scikit-learn',       'Model evaluation & metrics',      '#F57C00'),
+            ('Flask',              'Web framework & REST API',        '#000000'),
+            ('SQLite',              'Database storage for results',    '#00897B'),
+            ('Jupyter Notebook',   'Model training & EDA notebook',  '#F37726'),
+          ] %}
+          {% for name, desc, color in stack %}
+          <div class="tech-card">
+            <div class="tech-color-bar" style="background:{{ color }}"></div>
+            <h4>{{ name }}</h4>
+            <p>{{ desc }}</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Dataset -->
+      <div class="about-section">
+        <h2>📊 Dataset — PlantVillage</h2>
+        <div class="dataset-info">
+          <div class="dataset-stat">
+            <span class="ds-val">54,306</span>
+            <span class="ds-label">Total Images</span>
+          </div>
+          <div class="dataset-stat">
+            <span class="ds-val">38</span>
+            <span class="ds-label">Disease Classes</span>
+          </div>
+          <div class="dataset-stat">
+            <span class="ds-val">14</span>
+            <span class="ds-label">Plant Species</span>
+          </div>
+          <div class="dataset-stat">
+            <span class="ds-val">224×224</span>
+            <span class="ds-label">Image Resolution</span>
+          </div>
+        </div>
+        <p class="dataset-desc">
+          The <strong>PlantVillage dataset</strong> (Hughes & Salathé, 2015) contains
+          54,306 labelled images of healthy and diseased plant leaves collected under
+          controlled conditions. It is the standard benchmark for plant disease
+          classification using deep learning.
+        </p>
+      </div>
+
+      <!-- CNN Architecture -->
+      <div class="about-section">
+        <h2>🔬 CNN Model Architecture</h2>
+        <div class="cnn-arch">
+          <div class="cnn-layer base">
+            <span class="layer-name">Input Layer</span>
+            <span class="layer-desc">224 × 224 × 3 RGB</span>
+          </div>
+          <div class="cnn-arrow">↓</div>
+          <div class="cnn-layer pre">
+            <span class="layer-name">MobileNetV2 (Base)</span>
+            <span class="layer-desc">Pre-trained on ImageNet · Frozen layers</span>
+          </div>
+          <div class="cnn-arrow">↓</div>
+          <div class="cnn-layer pool">
+            <span class="layer-name">Global Average Pooling</span>
+            <span class="layer-desc">1280-dim feature vector</span>
+          </div>
+          <div class="cnn-arrow">↓</div>
+          <div class="cnn-layer drop">
+            <span class="layer-name">Dropout (0.3)</span>
+            <span class="layer-desc">Regularization</span>
+          </div>
+          <div class="cnn-arrow">↓</div>
+          <div class="cnn-layer dense">
+            <span class="layer-name">Dense (256, ReLU)</span>
+            <span class="layer-desc">Fully connected layer</span>
+          </div>
+          <div class="cnn-arrow">↓</div>
+          <div class="cnn-layer out">
+            <span class="layer-name">Output (38, Softmax)</span>
+            <span class="layer-desc">38 disease class probabilities</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© 2026 LeafCare AI — Plant Disease Detection System</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

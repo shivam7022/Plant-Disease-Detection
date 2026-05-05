@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Disease Result — LeafCare AI</title>
+  <meta name="description" content="Plant disease detection result with treatment recommendations."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="{{ url_for('main.index') }}" class="nav-logo">
+        <span class="logo-icon">🌿</span>
+        <span class="logo-text">LeafCare <span class="logo-accent">AI</span></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="{{ url_for('main.index') }}"   class="nav-link">Home</a></li>
+        <li><a href="{{ url_for('main.upload') }}"  class="nav-link active">Detect Disease</a></li>
+        <li><a href="{{ url_for('main.history') }}" class="nav-link">History</a></li>
+        <li><a href="{{ url_for('main.about') }}"   class="nav-link">About</a></li>
+      </ul>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <main class="page-main">
+    <div class="container">
+      <div class="result-layout">
+        <!-- Left: Image -->
+        <div class="result-image-panel">
+          <div class="result-image-wrap">
+            <img src="{{ url_for('static', filename='uploads/' + filename) }}"
+                 alt="Analyzed leaf" class="result-image" id="analyzed-img"/>
+            <div class="result-image-badge {{ 'badge-healthy' if result.is_healthy else 'badge-' + result.severity.lower() }}">
+              {{ '✓ Healthy' if result.is_healthy else ('⚠ ' + result.severity + ' Risk') }}
+            </div>
+          </div>
+          <div class="result-actions">
+            <a href="{{ url_for('main.upload') }}" class="btn btn-primary">
+              📷 Analyze Another
+            </a>
+            <a href="{{ url_for('main.history') }}" class="btn btn-ghost">
+              📋 View History
+            </a>
+          </div>
+        </div>
+
+        <!-- Right: Result Details -->
+        <div class="result-details-panel">
+
+          <!-- Main Result Card -->
+          <div class="result-main-card {{ 'card-healthy' if result.is_healthy else 'card-disease' }}">
+            <div class="result-header">
+              <div class="result-plant-badge">{{ result.plant_type }}</div>
+              <div class="result-id">ID #{{ prediction_id }}</div>
+            </div>
+            <div class="result-disease-name">
+              {% if result.is_healthy %}
+              <span class="healthy-icon">✅</span>
+              {% else %}
+              <span class="disease-icon">🔴</span>
+              {% endif %}
+              {{ result.disease_name }}
+            </div>
+            <p class="result-description">{{ result.description }}</p>
+
+            <!-- Confidence Bar -->
+            <div class="confidence-section">
+              <div class="confidence-label">
+                <span>AI Confidence</span>
+                <span class="confidence-value" id="conf-value">0%</span>
+              </div>
+              <div class="confidence-track">
+                <div class="confidence-bar-fill"
+                     id="conf-bar"
+                     data-target="{{ result.confidence_pct }}"
+                     style="width:0%"
+                     data-healthy="{{ result.is_healthy | lower }}">
+                </div>
+              </div>
+              <p class="confidence-hint">
+                {% if result.confidence_pct >= 90 %}🎯 Very high confidence
+                {% elif result.confidence_pct >= 75 %}✅ High confidence
+                {% elif result.confidence_pct >= 60 %}⚠️ Moderate confidence — consider retaking photo
+                {% else %}❓ Low confidence — please retake with better lighting
+                {% endif %}
+              </p>
+            </div>
+          </div>
+
+          <!-- Severity -->
+          {% if not result.is_healthy %}
+          <div class="severity-card severity-{{ result.severity.lower() }}">
+            <div class="severity-header">
+              <span class="severity-icon">
+                {% if result.severity == 'High' %}🔴
+                {% elif result.severity == 'Medium' %}🟡
+                {% else %}🟢{% endif %}
+              </span>
+              <h3>Severity: {{ result.severity }}</h3>
+            </div>
+            <p>
+              {% if result.severity == 'High' %}
+              This disease poses a <strong>high risk</strong>. Immediate treatment is strongly recommended to prevent crop loss.
+              {% elif result.severity == 'Medium' %}
+              This disease poses a <strong>moderate risk</strong>. Treat within the next few days to prevent spreading.
+              {% else %}
+              This is a <strong>low risk</strong> issue. Monitor the plant and apply treatment as a precaution.
+              {% endif %}
+            </p>
+          </div>
+          {% endif %}
+
+          <!-- ── Simple Summary (village-friendly) ── -->
+          {% if result.simple_summary %}
+          <div class="simple-summary-box">
+            <div class="simple-summary-icon">{{ result.summary_emoji or '🌿' }}</div>
+            <div class="simple-summary-text">
+              <span class="simple-summary-label">📖 In Simple Words</span>
+              <p>{{ result.simple_summary }}</p>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- ── Urgency Badge ── -->
+          {% if not result.is_healthy and result.urgency_label %}
+          <div class="urgency-banner urgency-{{ result.severity.lower() }}">
+            <span class="urgency-icon">
+              {% if result.severity == 'High' %}🚨{% elif result.severity == 'Medium' %}⏰{% else %}👍{% endif %}
+            </span>
+            <div>
+              <strong>When to act:</strong> {{ result.urgency_label }}
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- ── Step-by-step Treatment ── -->
+          <div class="treatment-card-v2">
+            <h3 class="treatment-title">
+              {% if result.is_healthy %}🌱 How to Keep Your Plant Healthy{% else %}🪴 What To Do — Step by Step{% endif %}
+            </h3>
+            <div class="steps-list">
+              {% set step_icons = ['1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣'] %}
+              {% for step in result.remedy.split('\n') if step.strip() %}
+              {% set clean = step.strip().lstrip('1234567890.').strip() %}
+              <div class="remedy-step">
+                <div class="remedy-step-num">{{ loop.index }}</div>
+                <div class="remedy-step-body">
+                  {% if 'spray' in clean.lower() or 'fungicid' in clean.lower() %}
+                    <span class="step-type-badge badge-spray">💦 Spray</span>
+                  {% elif 'remove' in clean.lower() or 'cut' in clean.lower() or 'pick' in clean.lower() %}
+                    <span class="step-type-badge badge-remove">✂️ Remove</span>
+                  {% elif 'buy' in clean.lower() or 'agri-store' in clean.lower() or 'ask' in clean.lower() %}
+                    <span class="step-type-badge badge-buy">🛒 Get from market</span>
+                  {% elif 'burn' in clean.lower() or 'destroy' in clean.lower() %}
+                    <span class="step-type-badge badge-danger">🔥 Dispose</span>
+                  {% elif 'water' in clean.lower() %}
+                    <span class="step-type-badge badge-water">💧 Watering</span>
+                  {% elif 'wash' in clean.lower() or 'clean' in clean.lower() %}
+                    <span class="step-type-badge badge-clean">🧼 Clean</span>
+                  {% endif %}
+                  <p>{{ clean }}</p>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- ── Shopping List ── -->
+          {% if result.what_to_buy %}
+          <div class="shopping-card">
+            <h3>🛒 What to Get from the Market</h3>
+            <p class="shopping-hint">Take this list to your nearest agri-shop or general store:</p>
+            <ul class="shopping-list">
+              {% for item in result.what_to_buy %}
+              <li class="shopping-item">
+                <span class="shop-check">✓</span>
+                <span>{{ item }}</span>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+
+          <!-- Top 3 Predictions -->
+          <div class="top3-card">
+            <h3>🔬 Top Predictions</h3>
+            {% for pred in result.top3 %}
+            <div class="top3-item">
+              <span class="top3-class">{{ pred.class.replace('___', ' — ').replace('_', ' ') }}</span>
+              <div class="top3-bar-wrap">
+                <div class="top3-bar" style="width: {{ pred.confidence }}%"></div>
+              </div>
+              <span class="top3-val">{{ pred.confidence }}%</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <p>© 2026 LeafCare AI — Plant Disease Detection System</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
