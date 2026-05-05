@@ -17,6 +17,9 @@ def create_app():
     # Init DB
     db.init_app(app)
 
+    with app.app_context():
+        db.create_all()
+
     # Register blueprints
     from app.routes import main_bp
     app.register_blueprint(main_bp)
