@@ -7,7 +7,7 @@ from app.predict import predict_disease, allowed_file, save_upload
 main_bp = Blueprint('main', __name__)
 
 
-# ─── Landing Page ────────────────────────────────────────────────────────────
+# ─── Landing Page ─
 @main_bp.route('/')
 def index():
     total_predictions = Prediction.query.count()
@@ -19,13 +19,13 @@ def index():
                            healthy_count=healthy_count)
 
 
-# ─── Upload Page ─────────────────────────────────────────────────────────────
+# ─── Upload Page ──
 @main_bp.route('/upload')
 def upload():
     return render_template('predict.html')
 
 
-# ─── Predict (POST) ──────────────────────────────────────────────────────────
+# ─── Predict (POST) ───────────────
 @main_bp.route('/predict', methods=['POST'])
 def predict():
     if 'image' not in request.files:
@@ -77,7 +77,7 @@ def predict():
                            prediction_id=prediction.id)
 
 
-# ─── History Page ────────────────────────────────────────────────────────────
+# ─── History Page ─
 @main_bp.route('/history')
 def history():
     page       = request.args.get('page', 1, type=int)
@@ -101,13 +101,13 @@ def history():
                            disease_filter=disease_filter)
 
 
-# ─── About Page ──────────────────────────────────────────────────────────────
+# ─── About Page ───
 @main_bp.route('/about')
 def about():
     return render_template('about.html')
 
 
-# ─── JSON API Endpoints ───────────────────────────────────────────────────────
+# ─── JSON API Endpoints ────────────
 @main_bp.route('/api/predictions')
 def api_predictions():
     predictions = Prediction.query.order_by(Prediction.uploaded_at.desc()).limit(50).all()
@@ -136,7 +136,7 @@ def api_stats():
     })
 
 
-# ─── Delete prediction ────────────────────────────────────────────────────────
+# ─── Delete prediction ─────────────
 @main_bp.route('/delete/<int:pred_id>', methods=['POST'])
 def delete_prediction(pred_id):
     prediction = Prediction.query.get_or_404(pred_id)

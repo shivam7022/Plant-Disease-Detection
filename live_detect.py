@@ -46,14 +46,14 @@ def main():
             print("Failed to grab frame.")
             break
             
-        # ── 1. PREPROCESS THE FRAME ──────────────────────────────
+        # ── 1. PREPROCESS THE FRAME ─────────
         # The model expects a 224x224 RGB image
         img = cv2.resize(frame, Config.IMG_SIZE)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img = img.astype(np.float32)
         img = np.expand_dims(img, axis=0) # Add batch dimension: (1, 224, 224, 3)
         
-        # ── 2. PREDICT ───────────────────────────────────────────
+        # ── 2. PREDICT 
         preds = model.predict(img, verbose=0)
         top_idx = int(np.argmax(preds[0]))
         confidence = float(preds[0][top_idx])
@@ -63,7 +63,7 @@ def main():
         display_name = class_name.replace('___', ' - ').replace('_', ' ')
         text = f"{display_name}: {confidence*100:.1f}%"
         
-        # ── 3. DRAW RESULTS ON SCREEN ────────────────────────────
+        # ── 3. DRAW RESULTS ON SCREEN ───────
         # Pick green color if healthy, red if diseased
         if 'healthy' in class_name.lower():
             text_color = (0, 255, 0) # BGR: Green

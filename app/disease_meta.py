@@ -6,7 +6,7 @@ it — no chemical jargon, just clear step-by-step actions.
 
 DISEASE_META = {
 
-    # ── Apple ──────────────────────────────────────────────────────────────────
+    # ── Apple ──
     'Apple___Apple_scab': {
         'plant': 'Apple', 'disease': 'Apple Scab', 'severity': 'Medium', 'healthy': False,
         'remedy': (
@@ -59,14 +59,14 @@ DISEASE_META = {
         'description': 'The apple plant looks healthy with no signs of disease.',
     },
 
-    # ── Blueberry ──────────────────────────────────────────────────────────────
+    # ── Blueberry ───
     'Blueberry___healthy': {
         'plant': 'Blueberry', 'disease': 'Healthy', 'severity': 'Healthy', 'healthy': True,
         'remedy': 'Your plant is healthy! 🎉 Continue regular watering and remove any dead leaves.',
         'description': 'The blueberry plant looks healthy with no signs of disease.',
     },
 
-    # ── Cherry ─────────────────────────────────────────────────────────────────
+    # ── Cherry ─
     'Cherry_(including_sour)___Powdery_mildew': {
         'plant': 'Cherry', 'disease': 'Powdery Mildew', 'severity': 'Medium', 'healthy': False,
         'remedy': (
@@ -87,7 +87,7 @@ DISEASE_META = {
         'description': 'The cherry plant looks healthy with no signs of disease.',
     },
 
-    # ── Corn ───────────────────────────────────────────────────────────────────
+    # ── Corn ───
     'Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot': {
         'plant': 'Corn', 'disease': 'Gray Leaf Spot', 'severity': 'High', 'healthy': False,
         'remedy': (
@@ -136,7 +136,7 @@ DISEASE_META = {
         'description': 'The corn plant looks healthy with no signs of disease.',
     },
 
-    # ── Grape ──────────────────────────────────────────────────────────────────
+    # ── Grape ──
     'Grape___Black_rot': {
         'plant': 'Grape', 'disease': 'Black Rot', 'severity': 'High', 'healthy': False,
         'remedy': (
@@ -185,7 +185,7 @@ DISEASE_META = {
         'description': 'The grape plant looks healthy with no signs of disease.',
     },
 
-    # ── Orange ─────────────────────────────────────────────────────────────────
+    # ── Orange ─
     'Orange___Haunglongbing_(Citrus_greening)': {
         'plant': 'Orange', 'disease': 'Citrus Greening (HLB)', 'severity': 'High', 'healthy': False,
         'remedy': (
@@ -200,7 +200,7 @@ DISEASE_META = {
         ),
     },
 
-    # ── Peach ──────────────────────────────────────────────────────────────────
+    # ── Peach ──
     'Peach___Bacterial_spot': {
         'plant': 'Peach', 'disease': 'Bacterial Spot', 'severity': 'Medium', 'healthy': False,
         'remedy': (
@@ -221,7 +221,7 @@ DISEASE_META = {
         'description': 'The peach plant looks healthy with no signs of disease.',
     },
 
-    # ── Pepper ─────────────────────────────────────────────────────────────────
+    # ── Pepper ─
     'Pepper,_bell___Bacterial_spot': {
         'plant': 'Pepper', 'disease': 'Bacterial Spot', 'severity': 'Medium', 'healthy': False,
         'remedy': (
@@ -242,7 +242,7 @@ DISEASE_META = {
         'description': 'The pepper plant looks healthy with no signs of disease.',
     },
 
-    # ── Potato ─────────────────────────────────────────────────────────────────
+    # ── Potato ─
     'Potato___Early_blight': {
         'plant': 'Potato', 'disease': 'Early Blight', 'severity': 'Medium', 'healthy': False,
         'remedy': (
@@ -278,21 +278,21 @@ DISEASE_META = {
         'description': 'The potato plant looks healthy with no signs of disease.',
     },
 
-    # ── Raspberry ──────────────────────────────────────────────────────────────
+    # ── Raspberry ───
     'Raspberry___healthy': {
         'plant': 'Raspberry', 'disease': 'Healthy', 'severity': 'Healthy', 'healthy': True,
         'remedy': 'Your plant is healthy! 🎉 Regular pruning and watering at the base will keep it strong.',
         'description': 'The raspberry plant looks healthy with no signs of disease.',
     },
 
-    # ── Soybean ────────────────────────────────────────────────────────────────
+    # ── Soybean 
     'Soybean___healthy': {
         'plant': 'Soybean', 'disease': 'Healthy', 'severity': 'Healthy', 'healthy': True,
         'remedy': 'Your plant is healthy! 🎉 Continue normal care and check leaves regularly.',
         'description': 'The soybean plant looks healthy with no signs of disease.',
     },
 
-    # ── Squash ─────────────────────────────────────────────────────────────────
+    # ── Squash ─
     'Squash___Powdery_mildew': {
         'plant': 'Squash', 'disease': 'Powdery Mildew', 'severity': 'Medium', 'healthy': False,
         'remedy': (
@@ -307,7 +307,7 @@ DISEASE_META = {
         ),
     },
 
-    # ── Strawberry ─────────────────────────────────────────────────────────────
+    # ── Strawberry ──
     'Strawberry___Leaf_scorch': {
         'plant': 'Strawberry', 'disease': 'Leaf Scorch', 'severity': 'Medium', 'healthy': False,
         'remedy': (
@@ -329,7 +329,7 @@ DISEASE_META = {
         'description': 'The strawberry plant looks healthy with no signs of disease.',
     },
 
-    # ── Tomato ─────────────────────────────────────────────────────────────────
+    # ── Tomato ─
     'Tomato___Bacterial_spot': {
         'plant': 'Tomato', 'disease': 'Bacterial Spot', 'severity': 'Medium', 'healthy': False,
         'remedy': (

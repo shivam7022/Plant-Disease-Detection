@@ -12,7 +12,7 @@ except (ImportError, MemoryError):
 from config import Config
 from app.disease_meta import DISEASE_META
 
-# ── Load model once at import time ───────────────────────────────────────────
+# ── Load model once at import time 
 _model = None
 
 def get_model():
@@ -30,7 +30,7 @@ def get_model():
     return _model
 
 
-# ── Disease metadata — imported from disease_meta.py ─────────────────────────
+# ── Disease metadata — imported from disease_meta.py ────
 # Remedies and descriptions are written in plain, simple language
 # so any farmer or student can understand what to do.
 # To edit disease info, open: app/disease_meta.py
@@ -64,7 +64,7 @@ def _isolate_leaf(img_bgr: np.ndarray) -> np.ndarray:
     h, w = img_bgr.shape[:2]
     img_hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
 
-    # ── Build colour mask for leaf-like pixels ────────────────────────────────
+    # ── Build colour mask for leaf-like pixels 
     # Covers: green, yellow-green, yellow, light brown, dark brown, red-brown
     masks = [
         cv2.inRange(img_hsv, np.array([22, 25, 25]),  np.array([100, 255, 255])),  # green/yellow
@@ -75,13 +75,13 @@ def _isolate_leaf(img_bgr: np.ndarray) -> np.ndarray:
     for m in masks[1:]:
         leaf_mask = cv2.bitwise_or(leaf_mask, m)
 
-    # ── Morphological cleanup — fill holes, remove noise ─────────────────────
+    # ── Morphological cleanup — fill holes, remove noise 
     kernel_close = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (25, 25))
     kernel_open  = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (10, 10))
     leaf_mask = cv2.morphologyEx(leaf_mask, cv2.MORPH_CLOSE, kernel_close)
     leaf_mask = cv2.morphologyEx(leaf_mask, cv2.MORPH_OPEN,  kernel_open)
 
-    # ── Keep only the largest contiguous leaf region ──────────────────────────
+    # ── Keep only the largest contiguous leaf region ─────
     contours, _ = cv2.findContours(leaf_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if contours:
         largest = max(contours, key=cv2.contourArea)
@@ -177,7 +177,7 @@ def _basic_leaf_check(image_path: str) -> tuple[bool, str]:
     return True, "OK"
 
 
-# ── Main Prediction Function ──────────────────────────────────────────────────
+# ── Main Prediction Function ───────
 
 def predict_disease(image_path: str) -> dict:
     """
@@ -194,7 +194,7 @@ def predict_disease(image_path: str) -> dict:
     if model is None:
         return _demo_prediction()
 
-    # ── STEP 1: Quick sanity check (rejects non-plant images) ────────────────
+    # ── STEP 1: Quick sanity check (rejects non-plant images) 
     is_leaf, reason = _basic_leaf_check(image_path)
     if not is_leaf:
         return {
@@ -231,7 +231,7 @@ def predict_disease(image_path: str) -> dict:
         for i in top3_idx
     ]
 
-    # ── STEP 5: Low confidence → model is genuinely uncertain ────────────────
+    # ── STEP 5: Low confidence → model is genuinely uncertain 
     # After temperature scaling, a confidence below 40% means even the softened
     # distribution is spread — the model doesn't recognise this leaf type.
     if confidence < 0.40:
@@ -256,7 +256,7 @@ def predict_disease(image_path: str) -> dict:
             'top3': top3,
         }
 
-    # ── STEP 6: Return confident prediction ──────────────────────────────────
+    # ── STEP 6: Return confident prediction ──
     meta = DISEASE_META.get(class_name, {
         'plant':    'Unknown',
         'disease':  class_name.replace('___', ' - ').replace('_', ' '),

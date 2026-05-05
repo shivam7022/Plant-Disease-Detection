@@ -1,17 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LeafCare AI — Plant Disease Detection</title>
-  <meta name="description" content="AI-powered plant disease detection using deep learning CNN. Upload a leaf image and get instant diagnosis with treatment recommendations."/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <meta name="description"
+    content="AI-powered plant disease detection using deep learning CNN. Upload a leaf image and get instant diagnosis with treatment recommendations." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
+
 <body>
 
-  <!-- ── NAV ─────────────────────────────────────────────── -->
+  <!-- ── NAV ──── -->
   <nav class="navbar">
     <div class="nav-container">
       <a href="{{ url_for('main.index') }}" class="nav-logo">
@@ -19,10 +24,10 @@
         <span class="logo-text">LeafCare <span class="logo-accent">AI</span></span>
       </a>
       <ul class="nav-links">
-        <li><a href="{{ url_for('main.index') }}"  class="nav-link active">Home</a></li>
+        <li><a href="{{ url_for('main.index') }}" class="nav-link active">Home</a></li>
         <li><a href="{{ url_for('main.upload') }}" class="nav-link">Detect Disease</a></li>
         <li><a href="{{ url_for('main.history') }}" class="nav-link">History</a></li>
-        <li><a href="{{ url_for('main.about') }}"  class="nav-link">About</a></li>
+        <li><a href="{{ url_for('main.about') }}" class="nav-link">About</a></li>
       </ul>
       <a href="{{ url_for('main.upload') }}" class="btn btn-primary nav-cta">
         <span>Analyze Leaf</span> <span>→</span>
@@ -33,7 +38,7 @@
     </div>
   </nav>
 
-  <!-- ── HERO ─────────────────────────────────────────────── -->
+  <!-- ── HERO ──── -->
   <section class="hero">
     <div class="hero-bg">
       <div class="hero-orb orb-1"></div>
@@ -47,7 +52,7 @@
         <span>Powered by CNN + MobileNetV2</span>
       </div>
       <h1 class="hero-title">
-        Detect Plant Diseases<br/>
+        Detect Plant Diseases<br />
         <span class="gradient-text">Instantly with AI</span>
       </h1>
       <p class="hero-subtitle">
@@ -112,7 +117,7 @@
     </div>
   </section>
 
-  <!-- ── HOW IT WORKS ──────────────────────────────────────── -->
+  <!-- ── HOW IT WORKS ──────── -->
   <section class="section" id="how-it-works">
     <div class="container">
       <div class="section-header">
@@ -145,7 +150,7 @@
     </div>
   </section>
 
-  <!-- ── PLANT DISEASES GRID ─────────────────────────────── -->
+  <!-- ── PLANT DISEASES GRID ────────── -->
   <section class="section section-dark">
     <div class="container">
       <div class="section-header">
@@ -155,20 +160,20 @@
       </div>
       <div class="plants-grid">
         {% set plants = [
-          ('🍎', 'Apple',      '4 classes'),
-          ('🍇', 'Grape',      '4 classes'),
-          ('🍅', 'Tomato',     '10 classes'),
-          ('🥔', 'Potato',     '3 classes'),
-          ('🌽', 'Corn',       '4 classes'),
-          ('🫑', 'Pepper',     '2 classes'),
-          ('🍑', 'Peach',      '2 classes'),
-          ('🍓', 'Strawberry', '2 classes'),
-          ('🫐', 'Blueberry',  '1 class'),
-          ('🍊', 'Orange',     '1 class'),
-          ('🍒', 'Cherry',     '2 classes'),
-          ('🫘', 'Soybean',    '1 class'),
-          ('🫙', 'Squash',     '1 class'),
-          ('🍇', 'Raspberry',  '1 class'),
+        ('🍎', 'Apple', '4 classes'),
+        ('🍇', 'Grape', '4 classes'),
+        ('🍅', 'Tomato', '10 classes'),
+        ('🥔', 'Potato', '3 classes'),
+        ('🌽', 'Corn', '4 classes'),
+        ('🫑', 'Pepper', '2 classes'),
+        ('🍑', 'Peach', '2 classes'),
+        ('🍓', 'Strawberry', '2 classes'),
+        ('🫐', 'Blueberry', '1 class'),
+        ('🍊', 'Orange', '1 class'),
+        ('🍒', 'Cherry', '2 classes'),
+        ('🫘', 'Soybean', '1 class'),
+        ('🫙', 'Squash', '1 class'),
+        ('🍇', 'Raspberry', '1 class'),
         ] %}
         {% for emoji, name, classes in plants %}
         <div class="plant-card">
@@ -181,7 +186,7 @@
     </div>
   </section>
 
-  <!-- ── FEATURES ───────────────────────────────────────── -->
+  <!-- ── FEATURES ───────── -->
   <section class="section">
     <div class="container">
       <div class="section-header">
@@ -223,7 +228,7 @@
     </div>
   </section>
 
-  <!-- ── CTA BANNER ─────────────────────────────────────── -->
+  <!-- ── CTA BANNER ─────── -->
   <section class="cta-banner">
     <div class="container">
       <div class="cta-content">
@@ -236,7 +241,7 @@
     </div>
   </section>
 
-  <!-- ── FOOTER ────────────────────────────────────────── -->
+  <!-- ── FOOTER ────────── -->
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
@@ -270,4 +275,5 @@
 
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
+
 </html>

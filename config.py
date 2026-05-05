@@ -3,21 +3,21 @@ import os
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
-    # ── Flask ──────────────────────────────────────────────────
+    # ── Flask ───────
     SECRET_KEY = os.environ.get('SECRET_KEY', 'plant-disease-secret-key-2024')
     DEBUG = True
 
-    # ── Upload ─────────────────────────────────────────────────
+    # ── Upload ──────
     UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB
 
-    # ── Database ────────────────────────────────────────────────
+    # ── Database ─────
     # Using SQLite for simplicity (no MySQL server required)
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', f'sqlite:///{os.path.join(BASE_DIR, "plant_diseases.db")}')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # ── Model ──────────────────────────────────────────────────
+    # ── Model ───────
     MODEL_PATH       = os.path.join(BASE_DIR, 'model', 'plant_disease_model.h5')
     MODEL_PATH_KERAS = os.path.join(BASE_DIR, 'model', 'plant_disease_model.keras')
     IMG_SIZE         = (224, 224)
