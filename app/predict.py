@@ -286,7 +286,7 @@ def predict_disease(image_path: str) -> dict:
             'confidence_pct': 0.0,
             'is_healthy':     False,
             'severity':       'High',
-            'remedy':         'An error occurred on the server while analyzing the image.',
+            'remedy':         f'ERROR DETAILS: {str(e)}',
             'description':    f"Error Details: {str(e)}",
             'simple_summary': 'An error occurred during AI inference.',
             'urgency_label':  'Error',
