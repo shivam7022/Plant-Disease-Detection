@@ -24,8 +24,8 @@ env/
 *.db
 
 # Model files (large binaries)
-# model/*.h5
-# model/*.keras
+model/*.h5
+model/*.keras
 model/logs/
 
 # Uploads

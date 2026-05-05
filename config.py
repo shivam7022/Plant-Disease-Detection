@@ -20,6 +20,7 @@ class Config:
     # ── Model ───────
     MODEL_PATH       = os.path.join(BASE_DIR, 'model', 'plant_disease_model.h5')
     MODEL_PATH_KERAS = os.path.join(BASE_DIR, 'model', 'plant_disease_model.keras')
+    MODEL_PATH_TFLITE = os.path.join(BASE_DIR, 'model', 'plant_disease_model.tflite')
     IMG_SIZE         = (224, 224)
 
     # ── Disease Classes (38 PlantVillage classes, alphabetical) ─

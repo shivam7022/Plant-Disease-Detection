@@ -5,10 +5,14 @@ import numpy as np
 import random
 from PIL import Image
 try:
-    import tensorflow as tf
-    TF_AVAILABLE = True
-except (ImportError, MemoryError):
-    TF_AVAILABLE = False
+    import tflite_runtime.interpreter as tflite
+    TFLITE_AVAILABLE = True
+except ImportError:
+    try:
+        import tensorflow.lite as tflite
+        TFLITE_AVAILABLE = True
+    except ImportError:
+        TFLITE_AVAILABLE = False
 from config import Config
 from app.disease_meta import DISEASE_META
 
@@ -17,16 +21,13 @@ _model = None
 
 def get_model():
     global _model
-    if not TF_AVAILABLE:
+    if not TFLITE_AVAILABLE:
         return None
     if _model is None:
-        # Support both .h5 (legacy) and .keras (Keras 3) formats
-        model_path = Config.MODEL_PATH
-        keras_path = str(model_path).replace('.h5', '.keras')
-        if os.path.exists(keras_path):
-            _model = tf.keras.models.load_model(keras_path)
-        elif os.path.exists(model_path):
-            _model = tf.keras.models.load_model(model_path)
+        model_path = Config.MODEL_PATH_TFLITE
+        if os.path.exists(model_path):
+            _model = tflite.Interpreter(model_path=model_path)
+            _model.allocate_tensors()
     return _model
 
 
@@ -206,7 +207,12 @@ def predict_disease(image_path: str) -> dict:
 
         # ── STEP 2 & 3: Preprocess (with leaf isolation) + Inference ─────────────
         img   = preprocess_image(image_path)
-        preds = model.predict(img, verbose=0)   # shape: (1, 38), raw softmax
+        
+        input_details = model.get_input_details()
+        output_details = model.get_output_details()
+        model.set_tensor(input_details[0]['index'], img)
+        model.invoke()
+        preds = model.get_tensor(output_details[0]['index'])   # shape: (1, 38), raw softmax
 
         # ── STEP 4: Temperature scaling — calibrate overconfident outputs ─────────
         raw_probs    = preds[0]
