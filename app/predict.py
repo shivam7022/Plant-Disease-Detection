@@ -182,105 +182,111 @@ def _basic_leaf_check(image_path: str) -> tuple[bool, str]:
 def predict_disease(image_path: str) -> dict:
     """
     Full prediction pipeline with leaf isolation and confidence calibration.
-
-    Steps:
-      1. Basic sanity check — is there ANY green/leaf content?
-      2. preprocess_image() → isolates leaf, resizes, converts
-      3. Model inference (raw softmax)
-      4. Temperature scaling → calibrates overconfident raw probabilities
-      5. Return result with calibrated confidence
     """
-    model = get_model()
-    if model is None:
-        return _demo_prediction()
+    try:
+        model = get_model()
+        if model is None:
+            return _demo_prediction()
 
-    # ── STEP 1: Quick sanity check (rejects non-plant images) 
-    is_leaf, reason = _basic_leaf_check(image_path)
-    if not is_leaf:
+        # ── STEP 1: Quick sanity check (rejects non-plant images) ────────────────
+        is_leaf, reason = _basic_leaf_check(image_path)
+        if not is_leaf:
+            return {
+                'class_name':     'Unknown',
+                'plant_type':     'Unknown',
+                'disease_name':   'No Leaf Detected',
+                'confidence':     0.0,
+                'confidence_pct': 0.0,
+                'is_healthy':     False,
+                'severity':       'Unknown',
+                'remedy':         reason,
+                'description':    'Please upload a clear image of a plant leaf to get a disease diagnosis.',
+                'top3':           [],
+            }
+
+        # ── STEP 2 & 3: Preprocess (with leaf isolation) + Inference ─────────────
+        img   = preprocess_image(image_path)
+        preds = model.predict(img, verbose=0)   # shape: (1, 38), raw softmax
+
+        # ── STEP 4: Temperature scaling — calibrate overconfident outputs ─────────
+        raw_probs    = preds[0]
+        scaled_probs = _apply_temperature_scaling(raw_probs, temperature=3.0)
+
+        top_idx    = int(np.argmax(scaled_probs))
+        confidence = float(scaled_probs[top_idx])
+        class_name = Config.CLASS_NAMES[top_idx]
+
+        # Top-3 with calibrated confidences
+        top3_idx = np.argsort(scaled_probs)[::-1][:3]
+        top3 = [
+            {'class': Config.CLASS_NAMES[i], 'confidence': round(float(scaled_probs[i]) * 100, 2)}
+            for i in top3_idx
+        ]
+
+        # ── STEP 5: Low confidence → model is genuinely uncertain ────────────────
+        if confidence < 0.40:
+            return {
+                'class_name':     'Uncertain',
+                'plant_type':     'Unknown',
+                'disease_name':   'Low Confidence Detection',
+                'confidence':     confidence,
+                'confidence_pct': round(confidence * 100, 2),
+                'is_healthy':     False,
+                'severity':       'Unknown',
+                'remedy':         (
+                    f"The model's best guess is '{class_name.replace('___', ' - ').replace('_', ' ')}' "
+                    f"but with only {confidence*100:.1f}% confidence after calibration. "
+                    "Try uploading a clearer, close-up photo of just the leaf for better accuracy."
+                ),
+                'description':    (
+                    "This plant species may not be in the supported list, or the image quality "
+                    "is too low for reliable detection. Supported plants: Apple, Cherry, Corn, Grape, "
+                    "Orange, Peach, Pepper, Potato, Strawberry, Tomato, and more."
+                ),
+                'top3': top3,
+            }
+
+        # ── STEP 6: Return confident prediction ──────────────────────────────────
+        meta = DISEASE_META.get(class_name, {
+            'plant':    'Unknown',
+            'disease':  class_name.replace('___', ' - ').replace('_', ' '),
+            'severity': 'Medium',
+            'healthy':  False,
+            'remedy':   'Consult an agronomist.',
+            'description': 'No detailed information available for this class.'
+        })
+
         return {
-            'class_name':     'Unknown',
-            'plant_type':     'Unknown',
-            'disease_name':   'No Leaf Detected',
+            'class_name':     class_name,
+            'plant_type':     meta['plant'],
+            'disease_name':   meta['disease'],
+            'confidence':     confidence,
+            'confidence_pct': round(confidence * 100, 2),
+            'is_healthy':     meta['healthy'],
+            'severity':       meta['severity'],
+            'remedy':         meta['remedy'],
+            'description':    meta['description'],
+            'simple_summary': meta.get('simple_summary', 'Follow the step-by-step guide below to treat your plant.'),
+            'urgency_label':  meta.get('urgency_label', 'Act soon' if meta['severity'] != 'Healthy' else ''),
+            'what_to_buy':    meta.get('what_to_buy', []),
+            'top3':           top3,
+        }
+    except Exception as e:
+        return {
+            'class_name':     'Error',
+            'plant_type':     'System Error',
+            'disease_name':   'Server Exception',
             'confidence':     0.0,
             'confidence_pct': 0.0,
             'is_healthy':     False,
-            'severity':       'Unknown',
-            'remedy':         reason,
-            'description':    'Please upload a clear image of a plant leaf to get a disease diagnosis.',
+            'severity':       'High',
+            'remedy':         'An error occurred on the server while analyzing the image.',
+            'description':    f"Error Details: {str(e)}",
+            'simple_summary': 'An error occurred during AI inference.',
+            'urgency_label':  'Error',
+            'what_to_buy':    [],
             'top3':           [],
         }
-
-    # ── STEP 2 & 3: Preprocess (with leaf isolation) + Inference ─────────────
-    img   = preprocess_image(image_path)
-    preds = model.predict(img, verbose=0)   # shape: (1, 38), raw softmax
-
-    # ── STEP 4: Temperature scaling — calibrate overconfident outputs ─────────
-    # Raw model is trained on clean PlantVillage → outputs 99.9% routinely.
-    # With temperature T=3.0, a raw 99.9% maps to a realistic ~70-85%.
-    raw_probs    = preds[0]
-    scaled_probs = _apply_temperature_scaling(raw_probs, temperature=3.0)
-
-    top_idx    = int(np.argmax(scaled_probs))
-    confidence = float(scaled_probs[top_idx])
-    class_name = Config.CLASS_NAMES[top_idx]
-
-    # Top-3 with calibrated confidences
-    top3_idx = np.argsort(scaled_probs)[::-1][:3]
-    top3 = [
-        {'class': Config.CLASS_NAMES[i], 'confidence': round(float(scaled_probs[i]) * 100, 2)}
-        for i in top3_idx
-    ]
-
-    # ── STEP 5: Low confidence → model is genuinely uncertain 
-    # After temperature scaling, a confidence below 40% means even the softened
-    # distribution is spread — the model doesn't recognise this leaf type.
-    if confidence < 0.40:
-        return {
-            'class_name':     'Uncertain',
-            'plant_type':     'Unknown',
-            'disease_name':   'Low Confidence Detection',
-            'confidence':     confidence,
-            'confidence_pct': round(confidence * 100, 2),
-            'is_healthy':     False,
-            'severity':       'Unknown',
-            'remedy':         (
-                f"The model's best guess is '{class_name.replace('___', ' - ').replace('_', ' ')}' "
-                f"but with only {confidence*100:.1f}% confidence after calibration. "
-                "Try uploading a clearer, close-up photo of just the leaf for better accuracy."
-            ),
-            'description':    (
-                "This plant species may not be in the supported list, or the image quality "
-                "is too low for reliable detection. Supported plants: Apple, Cherry, Corn, Grape, "
-                "Orange, Peach, Pepper, Potato, Strawberry, Tomato, and more."
-            ),
-            'top3': top3,
-        }
-
-    # ── STEP 6: Return confident prediction ──
-    meta = DISEASE_META.get(class_name, {
-        'plant':    'Unknown',
-        'disease':  class_name.replace('___', ' - ').replace('_', ' '),
-        'severity': 'Medium',
-        'healthy':  False,
-        'remedy':   'Consult an agronomist.',
-        'description': 'No detailed information available for this class.'
-    })
-
-    return {
-        'class_name':     class_name,
-        'plant_type':     meta['plant'],
-        'disease_name':   meta['disease'],
-        'confidence':     confidence,
-        'confidence_pct': round(confidence * 100, 2),
-        'is_healthy':     meta['healthy'],
-        'severity':       meta['severity'],
-        'remedy':         meta['remedy'],
-        'description':    meta['description'],
-        'simple_summary': meta.get('simple_summary', 'Follow the step-by-step guide below to treat your plant.'),
-        'urgency_label':  meta.get('urgency_label', 'Act soon' if meta['severity'] != 'Healthy' else ''),
-        'what_to_buy':    meta.get('what_to_buy', []),
-        'top3':           top3,
-    }
 
 
 def _demo_prediction() -> dict:
