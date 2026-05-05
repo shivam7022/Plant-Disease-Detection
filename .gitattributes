@@ -1,0 +1,4 @@
+# Treat model files as binary so Git doesn't corrupt them with CRLF line ending conversions
+*.tflite binary
+*.keras binary
+*.h5 binary
