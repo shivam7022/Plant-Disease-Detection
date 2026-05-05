@@ -7,6 +7,7 @@ An intelligent, full-stack web application designed to help farmers and gardener
 ---
 
 ## ✨ Features
+
 - **Accurate AI Diagnosis:** Powered by a fine-tuned EfficientNetB0 CNN model trained on the PlantVillage dataset (detects 38+ plant/disease classes).
 - **Extremely Fast Inference:** Model is converted to **TensorFlow Lite (TFLite)** to allow high-speed, low-memory inference directly on standard web servers.
 - **Actionable Advice:** Returns plain-language severity warnings, simple step-by-step remedies, and a shopping list for treatments.
@@ -17,6 +18,7 @@ An intelligent, full-stack web application designed to help farmers and gardener
 ---
 
 ## 🛠️ Tech Stack
+
 - **Frontend:** HTML5, CSS3 (Vanilla, custom UI/UX), JavaScript
 - **Backend:** Python 3.11, Flask, SQLAlchemy (SQLite)
 - **Machine Learning:** TensorFlow Lite, OpenCV, NumPy
@@ -29,54 +31,49 @@ An intelligent, full-stack web application designed to help farmers and gardener
 Follow these steps to run the application on your local machine.
 
 ### 1. Clone the repository
+
 ```bash
 git clone https://github.com/shivam7022/Plant-Disease-Detection.git
 cd Plant-Disease-Detection
 ```
 
 ### 2. Create a Virtual Environment
+
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
 ### 3. Install Dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
 ### 4. Run the Application
+
 ```bash
 python run.py
 ```
+
 *The app will be available at `http://localhost:5000`.*
 
 ---
 
 ## ☁️ Deployment (Render)
+
 This application is highly optimized for deployment on free-tier platforms like **Render**.
+
 1. The AI model has been converted to `plant_disease_model.tflite` to bypass strict memory limits (512MB RAM).
 2. The `tflite-runtime` package is used in production instead of the heavy `tensorflow` library.
 3. The server starts via Gunicorn using the command: `gunicorn run:app`
 
 ---
 
-## 📂 Repository Structure
-```text
-📦 Plant-Disease-Detection
-├── 📂 app/               # Flask blueprints, models, prediction logic
-├── 📂 dataset/           # (Ignored) Original training data
-├── 📂 model/             # TFLite model and Jupyter notebooks for training
-├── 📂 static/            # CSS, JavaScript, and uploaded images
-├── 📂 templates/         # HTML Jinja2 templates
-├── 📜 config.py          # App configuration and ML class names
-├── 📜 convert_tflite.py  # Script used to convert Keras models to TFLite
-├── 📜 requirements.txt   # Python dependencies
-└── 📜 run.py             # App entry point
-```
-
 ## 🤝 Contributing
+
 Contributions, issues, and feature requests are welcome!
 
 ## 📝 License
+
 This project is open-source and available under the [MIT License](LICENSE).
