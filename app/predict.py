@@ -215,7 +215,8 @@ def predict_disease(image_path: str) -> dict:
         preds = model.get_tensor(output_details[0]['index'])   # shape: (1, 38), raw softmax
 
         # ── STEP 4: Temperature scaling — calibrate overconfident outputs ─────────
-        raw_probs    = preds[0]
+        # Slice raw_probs to ignore invalid trailing classes (like 'test', 'train')
+        raw_probs    = preds[0][:len(Config.CLASS_NAMES)]
         scaled_probs = _apply_temperature_scaling(raw_probs, temperature=3.0)
 
         top_idx    = int(np.argmax(scaled_probs))
